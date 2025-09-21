@@ -1,0 +1,12 @@
+docker下载可移步阿里云官网
+containerd config default > /etc/containerd/config.toml
+
+containerd config default | \
+sed -e 's|registry\.k8s\.io/pause:[0-9.]\+|k8s\.b52m\.cn\/pause:3.9|g' \
+    -e 's/SystemdCgroup = .*/SystemdCgroup = true/' \
+    -e 's/\[plugins."io.containerd.grpc.v1.cri".registry.mirrors\]/&\n        [plugins."io.containerd.grpc.v1.cri".registry.mirrors."docker.io"]\n          endpoint = ["https:\/\/dh\.b52m\.cn"]\n/' \
+    -e 's/\[plugins."io.containerd.grpc.v1.cri".registry.mirrors\]/&\n        [plugins."io.containerd.grpc.v1.cri".registry.mirrors."registry.k8s.io"]\n          endpoint = ["https:\/\/k8s\.b52m\.cn"]\n/' \
+    -e '/^\s*$/d' | \
+sudo tee /etc/containerd/config.toml
+
+systemctl restart containerd
